@@ -1,0 +1,7 @@
+FROM golang:1.22-alpine
+
+# set working directory
+WORKDIR /go/src/target
+
+# Run testx
+CMD CGO_ENABLED=0 go test --tags=integration ./..
