@@ -5,6 +5,7 @@ package handler
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"io"
 	"log"
@@ -19,19 +20,24 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-const serverPost = 80
+const serverPort = 80
 
 func TestITGetGreeting(t *testing.T) {
 	// Setup server
 	eh := echo.New()
 	go func(e *echo.Echo) {
-		h := NewApplication(nil)
+		db, err := sql.Open("postgres", "postgresql://root:root@db/go-example-db?sslmode=disable")
+		if err != nil {
+			log.Fatal(err)
+		}
 
-		e.GET("/", h.Greeting)
-		e.Start(fmt.Sprintf(":%d", serverPost))
+		h := NewApplication(db)
+
+		e.GET("/news", h.ListNews)
+		e.Start(fmt.Sprintf(":%d", serverPort))
 	}(eh)
 	for {
-		conn, err := net.DialTimeout("tcp", fmt.Sprintf("localhost:%d", serverPost), 30*time.Second)
+		conn, err := net.DialTimeout("tcp", fmt.Sprintf("localhost:%d", serverPort), 30*time.Second)
 		if err != nil {
 			log.Print(err)
 		}
@@ -43,7 +49,7 @@ func TestITGetGreeting(t *testing.T) {
 
 	// Arrange
 	ReqBody := ``
-	req, err := http.NewRequest(http.MethodGet, fmt.Sprintf("http://localhost:%d/news", serverPost), strings.NewReader(ReqBody))
+	req, err := http.NewRequest(http.MethodGet, fmt.Sprintf("http://localhost:%d/news", serverPort), strings.NewReader(ReqBody))
 	assert.NoError(t, err)
 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 	client := http.Client{}
@@ -57,7 +63,7 @@ func TestITGetGreeting(t *testing.T) {
 	resp.Body.Close()
 
 	//Asserttions
-	expected := `[{ID:1,Title:"test-title",Content:"test-content",Author:"test-author"}]`
+	expected := `[{"ID":1,"Title":"test-title","Content":"test-content","Author":"test-author"}]`
 
 	if assert.NoError(t, err) {
 		assert.Equal(t, http.StatusOK, resp.StatusCode)

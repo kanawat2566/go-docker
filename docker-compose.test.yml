@@ -8,8 +8,8 @@ services:
     build:
       context: .
       dockerfile: ./Dockerfile.test
-    # volumes:
-    #   - $PWD:/go/src/target
+    volumes:
+      - .:/go/src/target
     depends_on:
       - db
     networks:
@@ -25,4 +25,3 @@ services:
       - ./db:/docker-entrypoint-initdb.d/
     networks:
       - integration-test-example
-    

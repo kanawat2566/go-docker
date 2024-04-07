@@ -1,4 +1,4 @@
-CREATE SEQUENCE IF NOT EXITS news_articles_id_seq;
+CREATE SEQUENCE IF NOT EXISTS news_articles_id_seq;
 
 CREATE TABLE "news_articles" (
     "id" int4 NOT NULL DEFAULT nextval( 'news_articles_id_seq' ::regclass),

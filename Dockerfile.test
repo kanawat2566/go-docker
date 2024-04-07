@@ -4,4 +4,4 @@ FROM golang:1.22-alpine
 WORKDIR /go/src/target
 
 # Run testx
-CMD CGO_ENABLED=0 go test --tags=integration ./..
+CMD CGO_ENABLED=0 go test --tags=integration ./... -v
